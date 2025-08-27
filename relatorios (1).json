@@ -1,0 +1,1078 @@
+{
+  "name": "relatorios",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "                             exibir historico alimentar do dia",
+        "height": 300,
+        "width": 680,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        2752
+      ],
+      "id": "761f7b25-c79b-49c4-9bd3-5d05e5172e2c",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Calculo dos totais",
+        "height": 460,
+        "width": 960
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        1904
+      ],
+      "id": "c0eadcd5-87c8-4de3-bfec-73ab64e8f7fa",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "2fbc3806-4f1c-4999-8b48-eb0367157651",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        112,
+        64
+      ],
+      "id": "2114043c-5651-4980-8464-b07bb474c331",
+      "name": "Webhook1",
+      "webhookId": "2fbc3806-4f1c-4999-8b48-eb0367157651"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n\n//valores iniciais\nlet totais = {\n  calorias : 0,\n  carboidratos : 0,\n  proteinas : 0,\n  gorduras : 0\n};\n\n\n// somatório das refeições\nfor (const item of items) {\n  const r = item.json;\n  totais.calorias += r.calorias;\n  totais.carboidratos += r.carboidratos;\n  totais.proteinas += r.proteinas;\n  totais.gorduras += r.gorduras;\n  \n}\n\n// json com os valores totais \nreturn totais;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        2064
+      ],
+      "id": "b8ea6544-e9ed-49b5-a58a-40ad5d3b7eeb",
+      "name": "Calculo dos totais"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "dietas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "usuario_telefone",
+              "keyValue": "={{ $json.body.phone }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        480,
+        2224
+      ],
+      "id": "1879a719-a54b-44dd-97d2-12f831eb43de",
+      "name": "Busca dieta",
+      "credentials": {
+        "supabaseApi": {
+          "id": "aLPCtqdgRYyrwtIH",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "registros_alimentares",
+        "returnAll": true,
+        "filterType": "=manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "usuario_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.usuario_id }}"
+            },
+            {
+              "keyName": "data_consumo",
+              "condition": "eq",
+              "keyValue": "={{ $now.toFormat('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        752,
+        2160
+      ],
+      "id": "79c343ad-41c5-4e9c-b629-61e136d6e2bf",
+      "name": "Busca historico diario",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "aLPCtqdgRYyrwtIH",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "name": "Unir Metas e Totais",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        2608,
+        2432
+      ],
+      "id": "e7bb0a59-c5d4-4211-931c-788156fd25a6"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "44b25479-1cf5-4edc-8c21-cc62fc7d91da",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        2240
+      ],
+      "id": "0764907a-cb7e-47e0-bdf3-38612459240c",
+      "name": "Webhook",
+      "webhookId": "44b25479-1cf5-4edc-8c21-cc62fc7d91da"
+    },
+    {
+      "parameters": {
+        "content": "## antigo",
+        "height": 220,
+        "width": 400,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b0854f23-2a7b-4940-ac77-3ef49a07984a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "let resposta = \"📊 Registros alimentares do dia:\\n\\n\";\n\nfor (const item of items) {\n  const r = item.json;\n  resposta += `🍽️ Refeição: ${r.tipo_refeicao}\\n`;\n  resposta += `🍛 Alimento: ${r.nome_alimento}\\n`;\n  resposta += `🔥 Calorias: ${r.calorias} kcal\\n`;\n  resposta += `🥖 Carboidratos: ${r.carboidratos}g\\n`;\n  resposta += `🥩 Proteínas: ${r.proteinas}g\\n`;\n  resposta += `🧈 Gorduras: ${r.gorduras}g\\n`;\n  resposta += `🕒 Hora: ${r.hora_consumo}\\n\\n`;\n}\n\nreturn [{ json: { text: resposta, phone: $('Webhook').first().json.body.phone } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1952,
+        2832
+      ],
+      "id": "ffd6cb26-c577-40c0-b9a8-f744b272f671",
+      "name": "Monta histórico dos registros"
+    },
+    {
+      "parameters": {
+        "jsCode": "const dados_dieta = $('Busca dieta').first().json;\nconst dados_consumidos = $('Calculo dos totais').first().json;\n \n\n\nfunction avaliar(consumido, meta, unidade = \"g\") {\n  const diff = consumido - meta;\n  if (diff < 0) {\n    return `${consumido}${unidade} / ${meta}${unidade} → Faltam ${Math.abs(diff)}${unidade}`;\n  } else if (diff === 0) {\n    return `${consumido}${unidade} / ${meta}${unidade} → Meta atingida! 🎯`;\n  } else {\n    return `${consumido}${unidade} / ${meta}${unidade} → Excedeu em ${diff}${unidade} ⚠️`;\n  }\n}\n\nlet resposta = \"📊 Comparativo da dieta diária:\\n\\n\";\nresposta += `🔥 Calorias: ${avaliar(dados_consumidos.calorias, dados_dieta.calorias_diarias, \" kcal\")}\\n`;\nresposta += `🥖 Carboidratos: ${avaliar(dados_consumidos.carboidratos, dados_dieta.carboidrato_gramas)}\\n`;\nresposta += `🥩 Proteínas: ${avaliar(dados_consumidos.proteinas, dados_dieta.proteina_gramas)}\\n`;\nresposta += `🧈 Gorduras: ${avaliar(dados_consumidos.gorduras, dados_dieta.gordura_gramas)}\\n`;\n\nreturn [{ json: { text: resposta,\n                 calories:dados_dieta.calorias_diarias - dados_consumidos.calorias,\n                 carbs:dados_dieta.carboidrato_gramas - dados_consumidos.carboidratos,\n                 proteins:dados_dieta.proteina_gramas - dados_consumidos.proteinas,\n                 fat:dados_dieta.gordura_gramas - dados_consumidos.gorduras,\n                phone: dados_dieta.usuario_telefone} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2368,
+        2064
+      ],
+      "id": "db2ffd40-f3e8-4c92-8743-f6e7b6301d4e",
+      "name": "Compara com a dieta",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5fc2e957-0a47-4127-8f07-7299bd7210f0",
+              "leftValue": "={{ $('Webhook').item.json.body.text.message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "523b3b9c-58c3-46ad-bbb3-70c3caba8bcb",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        1232
+      ],
+      "id": "941960b3-37a2-4080-8223-6a340cc57acf",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "estados_conversa",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "usuario_telefone",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.body.phone }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "estado_atual",
+              "fieldValue": "info_altura"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        1392
+      ],
+      "id": "5f4123f4-ba98-45db-961a-6d41af70915c",
+      "name": "update estado17"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E1D888E8D8DE07F56022E7FADD21987/token/ED2BF32A855B887106BAAD09/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F60d85846fe6a4bfd986f72916b85da2fS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Webhook').item.json.body.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "=Não entendi.\nPor favor, insira um email válido(ex emagrecer@gmail.com)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1952,
+        1392
+      ],
+      "id": "19781972-61d8-4e4c-a9ec-658ef8079bb8",
+      "name": "Inicializa criação dieta1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const email = $('Pergunta email').first().json.body.text.message;\n\nconst regex = /^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/;\n\nreturn [\n  {\n    json: {\n      valid: regex.test(email)\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        1232
+      ],
+      "id": "9a767513-ab26-4bd8-beb3-2e57437cfbcd",
+      "name": "validaEmail"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "estados_conversa",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "usuario_telefone",
+              "condition": "eq",
+              "keyValue": "={{ $('Cria novo usuário1').item.json.telefone }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "estado_atual",
+              "fieldValue": "info_email"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        912
+      ],
+      "id": "7d2610bd-b1a2-4353-bdbe-901525ac7891",
+      "name": "Atualiza estado1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E1D888E8D8DE07F56022E7FADD21987/token/ED2BF32A855B887106BAAD09/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F60d85846fe6a4bfd986f72916b85da2fS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Webhook').item.json.body.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "👌Perfeito! Agora, me diga seu email(ex: emagrecer@gmail.com)."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1520,
+        912
+      ],
+      "id": "1dd22094-a8ee-4bb5-a9be-43aa87083124",
+      "name": "Pergunta email",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "estados_conversa",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "usuario_telefone",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.body.phone }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "estado_atual",
+              "fieldValue": "resposta_email"
+            },
+            {
+              "fieldId": "dados_contexto",
+              "fieldValue": "={{ $('Webhook').item.json.body.text.message }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        912
+      ],
+      "id": "e3d3a35e-367a-445f-a69f-133cd15f7537",
+      "name": "update estado1"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.body.text.message }}",
+        "options": {
+          "categories": "Quer sugestão, não quer sugestão"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.sentimentAnalysis",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        2240
+      ],
+      "id": "d5c9d37f-9cec-47a7-a744-398fd40aea76",
+      "name": "Sentiment Analysis"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        2432
+      ],
+      "id": "d409135e-f5f3-45d9-9164-ae78ca4e5033",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "OSiXiaMjcby4EcIk",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "459e7f9b-4f9c-4849-881c-4a0dcd59873b",
+              "leftValue": "={{ $json.isEmpty() }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1168,
+        2160
+      ],
+      "id": "e02141b1-d42d-42de-aa40-460fd29d142c",
+      "name": "já registrou algo?"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').first().json.body.text.message }}",
+        "options": {
+          "systemMessage": "={{ $json.prompt_final }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        3824,
+        2432
+      ],
+      "id": "d2bb510a-06bf-498a-8cf4-47461287893d",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3824,
+        2640
+      ],
+      "id": "f2424c94-66c0-4bd7-aa0e-23d5d83d2a13",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "OSiXiaMjcby4EcIk",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E1D888E8D8DE07F56022E7FADD21987/token/ED2BF32A855B887106BAAD09/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F60d85846fe6a4bfd986f72916b85da2fS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Webhook').first().json.body.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4304,
+        2432
+      ],
+      "id": "f4ba21de-40e0-4931-bfed-e8a4f73f11b2",
+      "name": "HTTP Request5"
+    },
+    {
+      "parameters": {
+        "content": "## Não há registro alimentar sugere um plano alimentar baseado na dieta\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/sticky-notes/)",
+        "height": 220
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        3440
+      ],
+      "id": "42d5a77c-5b3f-4287-9936-618d8d7c628c",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9f3be674-f3cf-4683-bbd5-3fbf78e488eb",
+              "leftValue": "={{ $json.calories }}",
+              "rightValue": 1200,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2832,
+        2432
+      ],
+      "id": "b104c86d-9645-4e5d-9e7d-c15fe0c813a1",
+      "name": "calories <= 1200"
+    },
+    {
+      "parameters": {
+        "content": "## refeição única\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/sticky-notes/)",
+        "height": 240,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3008,
+        2128
+      ],
+      "id": "b1eeee97-0d9f-4f98-bcb3-06ed1dac7be3",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Dividir refeições\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/sticky-notes/)",
+        "height": 240,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3024,
+        2528
+      ],
+      "id": "4117560e-6f06-4dd2-adad-15a5cf70579e",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3287295c-841f-4d20-aa56-68174fa492b6",
+              "name": "prompt_final",
+              "value": "=Você atuará como um nutricionista e chef de cozinha.  Sua tarefa é analisar as metas nutricionais totais restantes para o dia, que são consideradas altas para uma única refeição. Seu objetivo é **dividir esses valores de forma inteligente em duas refeições separadas e balanceadas** (por exemplo, um Almoço e um Jantar).  A soma das duas refeições sugeridas deve atingir os valores-alvo totais fornecidos.  **VALORES TOTAIS A SEREM DIVIDIDOS:**  {   \"calories\": {{ $('Unir Metas e Totais').item.json.calories }},   \"carbs\": {{ $('Unir Metas e Totais').item.json.carbs }},   \"proteins\": {{ $('Unir Metas e Totais').item.json.proteins }},   \"fat\": {{ $('Unir Metas e Totais').item.json.fat }} }   **FORMATO DA RESPOSTA:**  Por favor, formate sua resposta da seguinte maneira, iniciando com uma confirmação e depois detalhando as duas refeições:  ###  تقسیم️ Plano de Divisão de Metas  Entendido. Como os valores restantes são altos, aqui está uma sugestão para dividi-los em duas refeições principais para garantir melhor digestão e absorção de nutrientes:  ---  **1️⃣ Próxima Refeição (ex: Almoço):** [Nome da Refeição] * **Ingredientes:** [Lista com quantidades detalhadas] * **Estimativa:** Cals: ~[v] | Carbs: ~[v]g | Prot: ~[v]g | Fat: ~[v]g  ---  **2️⃣ Última Refeição (ex: Jantar):** [Nome da Refeição] * **Ingredientes:** [Lista com quantidades detalhadas] * **Estimativa:** Cals: ~[v] | Carbs: ~[v]g | Prot: ~[v]g | Fat: ~[v]g  ---  **📊 RESUMO TOTAL DAS DUAS REFEIÇÕES:** * **Calorias Totais:** ~[soma] kcal * **Carboidratos Totais:** ~[soma] g * **Proteínas Totais:** ~[soma] g * **Gorduras Totais:** ~[soma] g",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3104,
+        2208
+      ],
+      "id": "e9441822-9bf6-4460-886f-0ae3e654d47a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69ef93b3-ab7e-488b-b2c5-f03262c6fffd",
+              "name": "prompt_final",
+              "value": "=Você atuará como um nutricionista e chef de cozinha, especialista em criar refeições para atingir metas de macronutrientes específicas.  Sua tarefa é analisar os valores nutricionais **restantes** para o meu dia e sugerir uma **única refeição** completa e balanceada para atingir esses alvos.  **REGRAS PARA A SUGESTÃO:**  1.  **Metas Positivas:** A refeição deve se aproximar ao máximo dos alvos positivos de calorias, carboidratos e proteínas. 2.  **Regra do Macro Negativo:** Se um macronutriente tiver um valor **negativo**, a refeição sugerida deve conter o **mínimo absoluto** daquele macro, utilizando ingredientes com virtualmente zero ou a menor quantidade possível dessa gordura ou carboidrato.  **VALORES-ALVO PARA A REFEIÇÃO:**  {   \"calories\": {{ $('Unir Metas e Totais').item.json.calories }},   \"carbs\": {{ $('Unir Metas e Totais').item.json.carbs }},   \"proteins\": {{ $('Unir Metas e Totais').item.json.proteins }},   \"fat\": {{ $('Unir Metas e Totais').item.json.fat }} }  **FORMATO DA RESPOSTA:**  Por favor, formate sua resposta da seguinte maneira:  ### 🍽️ Sugestão de Refeição: [Nome Criativo para a Refeição]  **Descrição:** [Faça uma breve e apetitosa descrição da refeição.]  **Ingredientes Principais (com quantidades):** * **Proteína:** [Ex: 200g de filé de tilápia assado] * **Carboidrato:** [Ex: 250g de mandioquinha cozida] * **Vegetais/Fibras:** [Ex: 150g de couve-flor no vapor] * **Temperos:** [Sugira temperos relevantes]  **Justificativa Nutricional:** [Explique brevemente por que essa combinação atinge as metas. Se aplicável, detalhe como a \"Regra do Macro Negativo\" foi seguida.]  **Estimativa Nutricional da Refeição:** * **Calorias:** ~[valor] kcal * **Carboidratos:** ~[valor] g * **Proteínas:** ~[valor] g * **Gorduras:** ~[valor] g",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3104,
+        2608
+      ],
+      "id": "f05051d3-1b6c-445d-a432-3510ea3e8b88",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "59665125-7a84-4404-ab13-20c55661887d",
+              "name": "prompt_final",
+              "value": "=Você atuará como um nutricionista e planejador alimentar. Meu objetivo hoje é seguir um plano nutricional preciso.  **Cenário:** Estou no início do meu dia e ainda não consumi nenhuma caloria. Os valores que forneço abaixo são minhas **metas totais** para o dia inteiro.  **Sua Tarefa:** Criar um plano alimentar completo e balanceado, distribuindo as metas nutricionais em **quatro refeições padrão**: Café da Manhã, Almoço, Lanche da Tarde e Jantar.  O plano deve começar com a próxima refeição lógica do dia, considerando o horário atual. A soma de todas as refeições deve atingir as metas totais da forma mais precisa possível.  ---  **MINHAS METAS DIÁRIAS TOTAIS:**  * **Calorias (kcal): {{ $('Busca dieta').item.json.calorias_diarias }} * **Proteínas (g): {{ $('Busca dieta').item.json.proteina_gramas }} * **Carboidratos (g): {{ $('Busca dieta').item.json.carboidrato_gramas }} * **Gorduras (g): {{ $('Busca dieta').item.json.gordura_gramas }}  ---  **FORMATO DA RESPOSTA:**  Por favor, gere a resposta em um formato claro e organizado, usando Markdown, conforme o modelo abaixo:  ### 📅 Seu Plano Alimentar para Hoje  **Metas Totais do Dia:** * **Calorias:** [valor] kcal | **Proteínas:** [valor] g | **Carboidratos:** [valor] g | **Gorduras:** [valor] g  ---  **1️⃣ Café da Manhã** * **Nome do Prato:** [Ex: Panquecas de Banana e Aveia] * **Ingredientes:** [Lista com quantidades detalhadas] * **Estimativa Nutricional:** Cals: ~[v] | Prot: ~[v]g | Carbs: ~[v]g | Fat: ~[v]g  ---  **2️⃣ Almoço** * **Nome do Prato:** [Ex: Bife Grelhado com Arroz e Salada] * **Ingredientes:** [Lista com quantidades detalhadas] * **Estimativa Nutricional:** Cals: ~[v] | Prot: ~[v]g | Carbs: ~[v]g | Fat: ~[v]g  ---  **3️⃣ Lanche da Tarde** * **Nome do Prato:** [Ex: Iogurte Grego com Frutas e Mel] * **Ingredientes:** [Lista com quantidades detalhadas] * **Estimativa Nutricional:** Cals: ~[v] | Prot: ~[v]g | Carbs: ~[v]g | Fat: ~[v]g  ---  **4️⃣ Jantar** * **Nome do Prato:** [Ex: Sopa de Lentilha com Frango Desfiado] * **Ingredientes:** [Lista com quantidades detalhadas] * **Estimativa Nutricional:** Cals: ~[v] | Prot: ~[v]g | Carbs: ~[v]g | Fat: ~[v]g  ---  **📊 RESUMO TOTAL DO DIA:** * **Calorias Totais:** ~[soma de todas as refeições] kcal * **Proteínas Totais:** ~[soma] g * **Carboidratos Totais:** ~[soma] g * **Gorduras Totais:** ~[soma] g",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2128,
+        3408
+      ],
+      "id": "d095d992-b8b6-487c-878e-5d62f3c07fa4",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.body.phone }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        4000,
+        2640
+      ],
+      "id": "dd049a75-874e-4ef1-ae6f-4ee33a493e62",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.caloscan.com.br",
+            "user-agent": "Mozilla/5.0 (iPad; CPU OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/111.0.5563.101 Mobile/15E148 Safari/604.1",
+            "content-length": "763",
+            "content-type": "application/json",
+            "origin": "https://api.z-api.io",
+            "server": "Z-API",
+            "via": "2.0 Caddy",
+            "x-forwarded-for": "168.138.125.213",
+            "x-forwarded-host": "n8n.caloscan.com.br",
+            "x-forwarded-proto": "https",
+            "z-api-token": "ED2BF32A855B887106BAAD09",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "isStatusReply": false,
+            "chatLid": "184980013592738@lid",
+            "connectedPhone": "5521974610397",
+            "waitingMessage": false,
+            "isEdit": false,
+            "isGroup": false,
+            "isNewsletter": false,
+            "instanceId": "3E1D888E8D8DE07F56022E7FADD21987",
+            "messageId": "3F043219ED01F9C2FFB0",
+            "phone": "5521975911777",
+            "fromMe": false,
+            "momment": 1750717576587,
+            "status": "RECEIVED",
+            "chatName": "Pedro Silvestre",
+            "senderPhoto": null,
+            "senderName": "Pedro 🙃",
+            "photo": "https://pps.whatsapp.net/v/t61.24694-24/421227589_1039872240450622_6240477542377425045_n.jpg?ccb=11-4&oh=01_Q5Aa1wGIXbFnjuX_i5bdw-gbXKNJmeCrOAytJCT72RfS-iBl0g&oe=6866D9F4&_nc_sid=5e03e0&_nc_cat=107",
+            "broadcast": false,
+            "participantLid": null,
+            "messageExpirationSeconds": 0,
+            "forwarded": false,
+            "type": "ReceivedCallback",
+            "fromApi": false,
+            "text": {
+              "message": "Me sugira algo para comer "
+            }
+          },
+          "webhookUrl": "https://n8n.caloscan.com.br/webhook-test/44b25479-1cf5-4edc-8c21-cc62fc7d91da",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Calculo dos totais": {
+      "main": [
+        [
+          {
+            "node": "Compara com a dieta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca dieta": {
+      "main": [
+        [
+          {
+            "node": "Busca historico diario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca historico diario": {
+      "main": [
+        [
+          {
+            "node": "já registrou algo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unir Metas e Totais": {
+      "main": [
+        [
+          {
+            "node": "calories <= 1200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monta histórico dos registros": {
+      "main": [
+        [
+          {
+            "node": "Unir Metas e Totais",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Compara com a dieta": {
+      "main": [
+        [
+          {
+            "node": "Unir Metas e Totais",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Inicializa criação dieta1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inicializa criação dieta1": {
+      "main": [
+        [
+          {
+            "node": "update estado17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validaEmail": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pergunta email": {
+      "main": [
+        [
+          {
+            "node": "Atualiza estado1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update estado1": {
+      "main": [
+        [
+          {
+            "node": "Pergunta email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sentiment Analysis": {
+      "main": [
+        [
+          {
+            "node": "Busca dieta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "já registrou algo?": {
+      "main": [
+        [
+          {
+            "node": "Calculo dos totais",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Monta histórico dos registros",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "calories <= 1200": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4acc06d0-e27d-4a02-839d-1d6f8ba5fc91",
+  "meta": {
+    "instanceId": "e3e5231b9a43762dfd5b9269d048865d2504eba5680136b06f9bc85b9b7008b3"
+  },
+  "id": "cdnYptXvBA4B0qG6",
+  "tags": []
+}
