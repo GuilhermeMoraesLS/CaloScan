@@ -1,0 +1,273 @@
+{
+  "name": "webhook_zapi",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "44b25479-1cf5-4edc-8c21-cc62fc7d91da",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -32,
+        -32
+      ],
+      "id": "f22193f9-2f6b-47c1-9d6d-7c483359bfc6",
+      "name": "Webhook",
+      "webhookId": "9b80aea7-8e0d-4dee-a297-a65ce44b9241"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "estados_conversa",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "usuario_telefone",
+              "keyValue": "={{ $json.body.phone }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        144,
+        128
+      ],
+      "id": "c20d42a2-90cc-4b08-b69c-f51851c62ddd",
+      "name": "Get a row",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "aLPCtqdgRYyrwtIH",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "oEjb6144vhpJ60Mb",
+          "mode": "list",
+          "cachedResultName": "barcode_workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        -128
+      ],
+      "id": "f7c4c42f-2100-401b-a191-84a94b3117d3",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "q67wDxtc0pKUc9pA",
+          "mode": "list",
+          "cachedResultName": "onboarding"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        64
+      ],
+      "id": "d0511aa3-1a93-4686-bfdc-fcbe6318d08d",
+      "name": "Execute Workflow1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "226f2757-adde-4135-b005-e5bfc5bd789f",
+              "leftValue": "={{ $('Merge').item.json.input_2_json.estado_atual }}",
+              "rightValue": "fluxo_real",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        0
+      ],
+      "id": "4a6d9b39-dbd3-4ed3-9a8d-dee5ac39132d",
+      "name": "If",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        320,
+        0
+      ],
+      "id": "d47cc17b-f09b-4a8a-8c32-dd318c6242a3",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "caloscan-n8n-editor.msruy0.easypanel.host",
+            "user-agent": "Mozilla/5.0 (X11; Linux i686; rv:111.0) Gecko/20100101 Firefox/111.0",
+            "content-length": "745",
+            "content-type": "application/json",
+            "origin": "https://api.z-api.io",
+            "server": "Z-API",
+            "x-forwarded-for": "146.235.58.36",
+            "x-forwarded-host": "caloscan-n8n-editor.msruy0.easypanel.host",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "2fb9361d5a36",
+            "x-real-ip": "146.235.58.36",
+            "z-api-token": "149959297D242B1AE85E6F08",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "isStatusReply": false,
+            "chatLid": "211033234886867@lid",
+            "connectedPhone": "5521982482829",
+            "waitingMessage": false,
+            "isEdit": false,
+            "isGroup": false,
+            "isNewsletter": false,
+            "instanceId": "3E6667E966E5408E15ABD24EB4273A17",
+            "messageId": "3A4A8CD7DA6F20B2F2E6",
+            "phone": "5521997759217",
+            "fromMe": false,
+            "momment": 1756410821000,
+            "status": "RECEIVED",
+            "chatName": "Guilherne❤️",
+            "senderPhoto": null,
+            "senderName": "Guilherme de Moraes",
+            "photo": "https://pps.whatsapp.net/v/t61.24694-24/491843813_990947983147754_6721485405661455371_n.jpg?ccb=11-4&oh=01_Q5Aa2QGz7nwVP9Aoe28WdkgWlFLe6dolLT5NTSlUppNAKpc78w&oe=68BDB8E6&_nc_sid=5e03e0&_nc_cat=111",
+            "broadcast": false,
+            "participantLid": null,
+            "forwarded": false,
+            "type": "ReceivedCallback",
+            "fromApi": false,
+            "text": {
+              "message": "Olá"
+            }
+          },
+          "webhookUrl": "https://caloscan-n8n-webhook.msruy0.easypanel.host/webhook-test/44b25479-1cf5-4edc-8c21-cc62fc7d91da",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute Workflow1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5766e947-f524-4b7c-9035-21db3d942798",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3e5231b9a43762dfd5b9269d048865d2504eba5680136b06f9bc85b9b7008b3"
+  },
+  "id": "CkaMaoifrcp9HUkA",
+  "tags": []
+}
